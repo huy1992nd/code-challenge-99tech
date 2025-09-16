@@ -1,0 +1,12 @@
+echo "Running tests for problem5 on pre-commit..."
+
+cd src/problem5 || exit 1
+
+if [ ! -d node_modules ]; then
+	echo "Installing dependencies in src/problem5..."
+	npm ci --no-audit --no-fund || exit 1
+fi
+
+npm run -s prisma:generate || exit 1
+
+npm test || exit 1
