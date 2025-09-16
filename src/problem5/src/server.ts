@@ -41,7 +41,7 @@ try {
 	const raw = fs.readFileSync(swaggerSpecPath, 'utf-8');
 	swaggerSpec = JSON.parse(raw);
 } catch (e) {
-	console.warn('Swagger spec not found at', swaggerSpecPath, '\nRun: npm run tsoa:gen');
+	console.warn('Swagger spec not found at', swaggerSpecPath, '\nRun: npm run tsoa:gen', e);
 }
 
 if (swaggerSpec) {
@@ -54,14 +54,14 @@ if (swaggerSpec) {
 
 app.use(errorHandler);
 
-app.post('/resources', validateResourceBody,  async (req: Request, res: Response) => {
+app.post('/resources', validateResourceBody, async (req: Request, res: Response) => {
 	try {
 		const { name, description } = req.body as Partial<Resource>;
 		if (!name || typeof name !== 'string') {
 			return res.status(400).json({ error: 'name is required' });
 		}
 		const created = await prisma.resource.create({
-			data: { id: uuidv4(), name, description: description ?? null }
+			data: { id: uuidv4(), name, description: description ?? null },
 		});
 		return res.status(201).json(created);
 	} catch (error) {
@@ -77,8 +77,13 @@ app.get('/resources', async (req: Request, res: Response) => {
 		const skipNum = skip ? Number(skip) : undefined;
 		const takeNum = take ? Number(take) : undefined;
 		const [items, total] = await Promise.all([
-			prisma.resource.findMany({ where, orderBy: { createdAt: 'desc' }, skip: skipNum, take: takeNum }),
-			prisma.resource.count({ where })
+			prisma.resource.findMany({
+				where,
+				orderBy: { createdAt: 'desc' },
+				skip: skipNum,
+				take: takeNum,
+			}),
+			prisma.resource.count({ where }),
 		]);
 		return res.json({ items, total });
 	} catch (error) {
@@ -99,20 +104,25 @@ app.get('/resources/:id', validateUuidParam('id'), async (req: Request, res: Res
 	}
 });
 
-app.put('/resources/:id',  validateUuidParam('id'), validateResourceBody, async (req: Request, res: Response) => {
-	try {
-		const { id } = req.params;
-		const { name, description } = req.body as Partial<Resource>;
-		const updated = await prisma.resource.update({
-			where: { id },
-			data: { name, description: description ?? null }
-		});
-		return res.json(updated);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error: 'Failed to update resource' });
+app.put(
+	'/resources/:id',
+	validateUuidParam('id'),
+	validateResourceBody,
+	async (req: Request, res: Response) => {
+		try {
+			const { id } = req.params;
+			const { name, description } = req.body as Partial<Resource>;
+			const updated = await prisma.resource.update({
+				where: { id },
+				data: { name, description: description ?? null },
+			});
+			return res.json(updated);
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ error: 'Failed to update resource' });
+		}
 	}
-});
+);
 
 app.delete('/resources/:id', validateUuidParam('id'), async (req: Request, res: Response) => {
 	try {
@@ -128,5 +138,3 @@ app.delete('/resources/:id', validateUuidParam('id'), async (req: Request, res: 
 app.listen(port, () => {
 	console.log(`Server is running at http://localhost:${port}`);
 });
-
-

@@ -15,7 +15,6 @@ export interface ListResourcesResponse {
 	total: number;
 }
 
-
 export class ResourceService {
 	private prisma: PrismaClient;
 
@@ -25,15 +24,26 @@ export class ResourceService {
 
 	public async create(payload: CreateResourceRequest): Promise<Resource> {
 		return this.prisma.resource.create({
-			data: { name: payload.name, description: payload.description ?? null }
+			data: { name: payload.name, description: payload.description ?? null },
 		});
 	}
 
-	public async list(params: { name?: string; skip?: number; take?: number }): Promise<ListResourcesResponse> {
-		const where = params.name ? { name: { contains: params.name, mode: 'insensitive' as const } } : undefined;
+	public async list(params: {
+		name?: string;
+		skip?: number;
+		take?: number;
+	}): Promise<ListResourcesResponse> {
+		const where = params.name
+			? { name: { contains: params.name, mode: 'insensitive' as const } }
+			: undefined;
 		const [items, total] = await Promise.all([
-			this.prisma.resource.findMany({ where, orderBy: { createdAt: 'desc' }, skip: params.skip, take: params.take }),
-			this.prisma.resource.count({ where })
+			this.prisma.resource.findMany({
+				where,
+				orderBy: { createdAt: 'desc' },
+				skip: params.skip,
+				take: params.take,
+			}),
+			this.prisma.resource.count({ where }),
 		]);
 		return { items, total };
 	}
@@ -50,7 +60,7 @@ export class ResourceService {
 		try {
 			return await this.prisma.resource.update({
 				where: { id },
-				data: { name: payload.name, description: payload.description ?? null }
+				data: { name: payload.name, description: payload.description ?? null },
 			});
 		} catch (e: any) {
 			if (e?.code === 'P2025') {
@@ -71,5 +81,3 @@ export class ResourceService {
 		}
 	}
 }
-
-

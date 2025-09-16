@@ -11,5 +11,3 @@ export class HealthController {
 		return this.service.check();
 	}
 }
-
-

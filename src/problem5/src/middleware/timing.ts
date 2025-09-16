@@ -12,5 +12,3 @@ export function requestTiming(req: Request, res: Response, next: NextFunction): 
 	});
 	next();
 }
-
-

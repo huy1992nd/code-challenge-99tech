@@ -10,14 +10,16 @@ type MockedResourceDelegate = {
 	delete: jest.Mock;
 };
 
-function createMockPrisma(): { prisma: Partial<PrismaClient> & { resource: MockedResourceDelegate } } {
+function createMockPrisma(): {
+	prisma: Partial<PrismaClient> & { resource: MockedResourceDelegate };
+} {
 	const resource: MockedResourceDelegate = {
 		create: jest.fn(),
 		findMany: jest.fn(),
 		count: jest.fn(),
 		findUnique: jest.fn(),
 		update: jest.fn(),
-		delete: jest.fn()
+		delete: jest.fn(),
 	};
 	return { prisma: { resource } as any };
 }
@@ -40,14 +42,16 @@ describe('ResourceService', () => {
 		prismaMock.resource.create.mockResolvedValue(created);
 
 		const result = await service.create({ name: 'n' });
-		expect(prismaMock.resource.create).toHaveBeenCalledWith({ data: { name: 'n', description: null } });
+		expect(prismaMock.resource.create).toHaveBeenCalledWith({
+			data: { name: 'n', description: null },
+		});
 		expect(result).toEqual(created);
 	});
 
 	test('list() returns items and total with filtering and paging', async () => {
 		const items: any[] = [
 			{ id: 'a', name: 'alpha', description: null },
-			{ id: 'b', name: 'beta', description: 'd' }
+			{ id: 'b', name: 'beta', description: 'd' },
 		];
 		prismaMock.resource.findMany.mockResolvedValue(items);
 		prismaMock.resource.count.mockResolvedValue(42);
@@ -58,9 +62,11 @@ describe('ResourceService', () => {
 			where: { name: { contains: 'a', mode: 'insensitive' } },
 			orderBy: { createdAt: 'desc' },
 			skip: 10,
-			take: 5
+			take: 5,
 		});
-		expect(prismaMock.resource.count).toHaveBeenCalledWith({ where: { name: { contains: 'a', mode: 'insensitive' } } });
+		expect(prismaMock.resource.count).toHaveBeenCalledWith({
+			where: { name: { contains: 'a', mode: 'insensitive' } },
+		});
 		expect(result).toEqual({ items, total: 42 });
 	});
 
@@ -74,7 +80,7 @@ describe('ResourceService', () => {
 			where: undefined,
 			orderBy: { createdAt: 'desc' },
 			skip: undefined,
-			take: undefined
+			take: undefined,
 		});
 		expect(prismaMock.resource.count).toHaveBeenCalledWith({ where: undefined });
 	});
@@ -100,7 +106,7 @@ describe('ResourceService', () => {
 		const result = await service.update('id-1', { name: 'new', description: 'd' });
 		expect(prismaMock.resource.update).toHaveBeenCalledWith({
 			where: { id: 'id-1' },
-			data: { name: 'new', description: 'd' }
+			data: { name: 'new', description: 'd' },
 		});
 		expect(result).toEqual(entity);
 	});
@@ -124,5 +130,3 @@ describe('ResourceService', () => {
 		await expect(service.remove('missing')).rejects.toMatchObject({ status: 404 });
 	});
 });
-
-

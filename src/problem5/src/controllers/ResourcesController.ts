@@ -1,7 +1,11 @@
 import { Body, Delete, Get, Path, Post, Put, Query, Route, Tags } from 'tsoa';
 import { PrismaClient, Resource } from '@prisma/client';
 import { validate as validateUuid } from 'uuid';
-import { ResourceService, CreateResourceRequest as ServiceCreate, UpdateResourceRequest as ServiceUpdate } from '../services/ResourceService';
+import {
+	ResourceService,
+	CreateResourceRequest as ServiceCreate,
+	UpdateResourceRequest as ServiceUpdate,
+} from '../services/ResourceService';
 
 export interface CreateResourceRequest {
 	name: string;
@@ -64,5 +68,3 @@ export class ResourcesController {
 		return;
 	}
 }
-
-

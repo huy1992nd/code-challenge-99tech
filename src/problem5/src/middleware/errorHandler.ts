@@ -7,5 +7,3 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
 	console.error('Error handler:', { status, message, details });
 	res.status(status).json({ error: message });
 }
-
-

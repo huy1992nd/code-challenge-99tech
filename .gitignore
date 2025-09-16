@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+Thumbs.db
+.env
+/dist/
+coverage/
+.vscode/
+.idea/
+
+# Subproject ignores (problem5 has its own too)
+src/problem5/node_modules/
+src/problem5/dist/
