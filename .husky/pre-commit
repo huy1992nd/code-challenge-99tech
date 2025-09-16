@@ -1,7 +1,12 @@
 echo "Running ESLint (staged TS/TSX in src/problem5) and tests on pre-commit..."
 
 # Collect staged TS/TSX files within src/problem5
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^src/problem5/.*\.(ts|tsx)$')
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^src/problem5/.*\.(ts|tsx)$' || true)
+
+if [ -z "$STAGED_FILES" ]; then
+	echo "No staged TypeScript files under src/problem5. Skipping lint and tests."
+	exit 0
+fi
 
 if [ -n "$STAGED_FILES" ]; then
 	echo "Linting:"
@@ -12,8 +17,6 @@ if [ -n "$STAGED_FILES" ]; then
 
 	# Re-add potentially fixed files to the commit
 	git add $STAGED_FILES || exit 1
-else
-	echo "No staged TypeScript files under src/problem5 to lint."
 fi
 
 cd src/problem5 || exit 1
