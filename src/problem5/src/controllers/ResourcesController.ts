@@ -9,7 +9,7 @@ import {
 
 export interface CreateResourceRequest {
 	name: string;
-	description?: string;
+	description?: string | null;
 }
 
 export interface UpdateResourceRequest {
@@ -46,7 +46,10 @@ export class ResourcesController {
 	@Get('{id}')
 	public async get(@Path() id: string): Promise<Resource> {
 		if (!validateUuid(id)) {
-			throw { status: 400, message: 'Invalid id format (must be UUID)' } as any;
+			throw { status: 400, message: 'Invalid id format (must be UUID)' } as {
+				status: number;
+				message: string;
+			};
 		}
 		return service.getById(id);
 	}
@@ -54,7 +57,10 @@ export class ResourcesController {
 	@Put('{id}')
 	public async update(@Path() id: string, @Body() body: UpdateResourceRequest): Promise<Resource> {
 		if (!validateUuid(id)) {
-			throw { status: 400, message: 'Invalid id format (must be UUID)' } as any;
+			throw { status: 400, message: 'Invalid id format (must be UUID)' } as {
+				status: number;
+				message: string;
+			};
 		}
 		return service.update(id, body as ServiceUpdate);
 	}
@@ -62,7 +68,10 @@ export class ResourcesController {
 	@Delete('{id}')
 	public async remove(@Path() id: string): Promise<void> {
 		if (!validateUuid(id)) {
-			throw { status: 400, message: 'Invalid id format (must be UUID)' } as any;
+			throw { status: 400, message: 'Invalid id format (must be UUID)' } as {
+				status: number;
+				message: string;
+			};
 		}
 		await service.remove(id);
 		return;

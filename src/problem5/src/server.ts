@@ -36,7 +36,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 RegisterRoutes(app);
 
 const swaggerSpecPath = path.join(process.cwd(), 'src', 'generated', 'swagger.json');
-let swaggerSpec: any = null;
+let swaggerSpec: unknown = null;
 try {
 	const raw = fs.readFileSync(swaggerSpecPath, 'utf-8');
 	swaggerSpec = JSON.parse(raw);

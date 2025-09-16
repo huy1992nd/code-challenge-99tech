@@ -30,9 +30,9 @@ export function validateResourceBody(req: Request, res: Response, next: NextFunc
 		if (req.method === 'POST') createResourceSchema.parse(req.body);
 		if (req.method === 'PUT') updateResourceSchema.parse(req.body);
 		return next();
-	} catch (e: any) {
-		const message = e?.errors
-			? e.errors.map((i: any) => i.message).join(', ')
+	} catch (e: unknown) {
+		const message = (e as { errors?: Array<{ message: string }> })?.errors
+			? (e as { errors: Array<{ message: string }> }).errors.map((i) => i.message).join(', ')
 			: 'Invalid request body';
 		res.status(400).json({ error: message });
 		return;

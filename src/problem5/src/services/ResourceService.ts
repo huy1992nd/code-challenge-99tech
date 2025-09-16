@@ -1,5 +1,7 @@
 import { PrismaClient, Resource } from '@prisma/client';
 
+type HttpError = { status: number; message: string };
+
 export interface CreateResourceRequest {
 	name: string;
 	description?: string | null;
@@ -51,7 +53,7 @@ export class ResourceService {
 	public async getById(id: string): Promise<Resource> {
 		const entity = await this.prisma.resource.findUnique({ where: { id } });
 		if (!entity) {
-			throw { status: 404, message: 'Resource not found' } as any;
+			throw { status: 404, message: 'Resource not found' } as HttpError;
 		}
 		return entity;
 	}
@@ -62,9 +64,14 @@ export class ResourceService {
 				where: { id },
 				data: { name: payload.name, description: payload.description ?? null },
 			});
-		} catch (e: any) {
-			if (e?.code === 'P2025') {
-				throw { status: 404, message: 'Resource not found' } as any;
+		} catch (e: unknown) {
+			if (
+				typeof e === 'object' &&
+				e !== null &&
+				'code' in e &&
+				(e as { code?: unknown }).code === 'P2025'
+			) {
+				throw { status: 404, message: 'Resource not found' } as HttpError;
 			}
 			throw e;
 		}
@@ -73,9 +80,14 @@ export class ResourceService {
 	public async remove(id: string): Promise<void> {
 		try {
 			await this.prisma.resource.delete({ where: { id } });
-		} catch (e: any) {
-			if (e?.code === 'P2025') {
-				throw { status: 404, message: 'Resource not found' } as any;
+		} catch (e: unknown) {
+			if (
+				typeof e === 'object' &&
+				e !== null &&
+				'code' in e &&
+				(e as { code?: unknown }).code === 'P2025'
+			) {
+				throw { status: 404, message: 'Resource not found' } as HttpError;
 			}
 			throw e;
 		}
