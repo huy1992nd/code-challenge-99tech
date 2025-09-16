@@ -1,0 +1,36 @@
+mermaid: |
+  sequenceDiagram
+    autonumber
+    participant C as Client (Browser)
+    participant GW as API Gateway
+    participant API as Score API
+    participant DB as PostgreSQL
+    participant R as Redis (Cache + Pub/Sub)
+    participant WS as WS Broadcaster
+
+    C->>GW: POST /v1/scores/increment (JWT, Idempotency-Key, HMAC-signed action)
+    GW->>API: Forward request (after JWT + rate limit)
+    API->>R: Check Idempotency-Key / Nonce
+    R-->>API: Miss
+    API->>API: Validate signature + timestamp
+    API->>DB: BEGIN; SELECT score FOR UPDATE
+    API->>DB: UPDATE score += delta; UPSERT if needed
+    API->>R: Store Idempotency-Key (TTL)
+    DB-->>API: COMMIT
+    API->>R: ZINCRBY leaderboard:zset delta userId
+    API->>R: PUBLISH leaderboard:updates {userId, delta}
+    R-->>WS: Pub/Sub message
+    WS->>R: ZREVRANGE leaderboard:zset 0 9 (top-10)
+    R-->>WS: entries
+    WS-->>C: websocket broadcast {version, entries}
+
+  %% Read path
+  C->>GW: GET /v1/leaderboard/top
+  GW->>API: Forward request
+  API->>R: ZREVRANGE 0 9
+  alt cache miss
+    API->>DB: SELECT top-10
+    DB-->>API: rows
+    API->>R: Warm cache
+  end
+  API-->>C: 200 {entries, version, updatedAt}

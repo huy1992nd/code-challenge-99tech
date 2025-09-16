@@ -1,0 +1,21 @@
+{
+	"entryFile": "src/server.ts",
+	"noImplicitAdditionalProperties": "silently-remove-extras",
+	"controllerPathGlobs": ["src/controllers/*.ts"],
+	"spec": {
+		"outputDirectory": "src/generated",
+		"specVersion": 3,
+		"basePath": "/",
+		"specMerging": "recursive",
+		"tags": [
+			{ "name": "Health", "description": "Health checks" },
+			{ "name": "Resources", "description": "CRUD for resources" }
+		]
+	},
+	"routes": {
+		"routesDir": "src/generated",
+		"middleware": "express"
+	}
+}
+
+
